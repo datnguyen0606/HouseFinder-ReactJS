@@ -1,0 +1,71 @@
+#app {
+  color: green; }
+
+ul.search-tabs {
+  border-left: 1px solid #50086e;
+  border-bottom: 1px solid #50086e; }
+  ul.search-tabs li {
+    background: #50086e; }
+    ul.search-tabs li a {
+      border: none;
+      border-radius: 0px;
+      margin-right: 0px;
+      color: white;
+      background: #6a148e; }
+    ul.search-tabs li a:hover {
+      background: #50086e; }
+    ul.search-tabs li.active a {
+      background-color: white;
+      color: #3b3a3c !important;
+      margin-top: 3px;
+      padding-top: 7px;
+      border: none; }
+      ul.search-tabs li.active a:hover {
+        border: none; }
+      ul.search-tabs li.active a:focus {
+        border: none; }
+
+.tabs-content {
+  border: 1px solid #50086e;
+  padding: 25px;
+  border-top: none; }
+
+.search-item-row {
+  margin-bottom: 15px; }
+  .search-item-row .agent-address {
+    margin-top: 15px; }
+  .search-item-row .search-item-footer {
+    margin-top: 10px;
+    border-bottom: 1px solid #d7d7d7;
+    padding-bottom: 15px; }
+  .search-item-row .search-item-left {
+    width: 240px;
+    float: left; }
+    .search-item-row .search-item-left img {
+      width: 100%; }
+    .search-item-row .search-item-left .small {
+      font-size: 12px;
+      color: #8e8e8e; }
+  .search-item-row .search-item-right {
+    margin-left: 260px !important;
+    color: black; }
+    .search-item-row .search-item-right .text-price {
+      color: #d64521;
+      font-size: 24px;
+      font-weight: 400;
+      line-height: 20px; }
+    .search-item-row .search-item-right .item-attr {
+      font-weight: bold;
+      color: black; }
+      .search-item-row .search-item-right .item-attr span {
+        margin-right: 15px; }
+    .search-item-row .search-item-right .item-address {
+      font-size: 12px;
+      color: #8e8e8e; }
+    .search-item-row .search-item-right .agent-logo img {
+      width: 100px; }
+    .search-item-row .search-item-right .agent-phone {
+      margin-right: 20px; }
+
+.clearfix {
+  display: block; }

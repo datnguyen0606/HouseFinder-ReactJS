@@ -1,0 +1,96 @@
+#app {
+  color: green;
+}
+
+ul.search-tabs {
+  border-left: 1px solid #50086e;
+  border-bottom: 1px solid #50086e;
+  li {
+    background: #50086e;
+    a {
+      border: none;
+      border-radius: 0px;
+      margin-right: 0px;
+      color: white;
+      background: #6a148e;
+    }
+    a:hover {
+      background: #50086e;
+    }
+    &.active a {
+      background-color: white;
+      color: #3b3a3c!important;
+      margin-top: 3px;
+      padding-top: 7px;
+      border: none;
+
+      &:hover {
+        border: none;
+      }
+      &:focus {
+        border: none;
+      }
+    }
+  }
+}
+.tabs-content {
+  border: 1px solid #50086e;
+  padding: 25px;
+  border-top: none;
+}
+.search-item-row {
+  margin-bottom: 15px;
+
+  .agent-address {
+    margin-top: 15px;
+  }
+  .search-item-footer {
+    margin-top: 10px;
+    border-bottom: 1px solid #d7d7d7;
+    padding-bottom: 15px;
+  }
+  .search-item-left {
+    width: 240px;
+    float: left;
+    img {
+      width: 100%;
+    }
+    .small {
+      font-size: 12px;
+      color: #8e8e8e;
+    }
+  }
+  .search-item-right {
+    margin-left: 260px!important;
+    color: black;
+
+    .text-price {
+      color: #d64521;
+      font-size: 24px;
+      font-weight: 400;
+      line-height: 20px;
+    }
+    .item-attr {
+      font-weight: bold;
+      color: black;
+
+      span {
+        margin-right: 15px;
+      }
+    }
+    .item-address {
+      font-size: 12px;
+      color: #8e8e8e;
+    }
+    .agent-logo img {
+      width: 100px;
+    }
+    .agent-phone {
+      margin-right: 20px;
+    }
+  }
+}
+
+.clearfix {
+  display: block;
+}
