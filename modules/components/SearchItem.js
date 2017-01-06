@@ -38,8 +38,8 @@ export default class SearchItem extends Component {
             </a>
 
             <div className="item-attr">
-              <span><i className="fa fa-bed" aria-hidden="true"></i> 1</span>
-              <i className="fa fa-bath" aria-hidden="true"></i> 1
+              <span><i className="fa fa-bed"></i> 1</span>
+              <i className="fa fa-bath"></i> 1
             </div>
             <p className="item-address">{item.displayable_address}</p>
             <p className="item-description">

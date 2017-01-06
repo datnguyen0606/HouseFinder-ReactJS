@@ -82,3 +82,7 @@ ul.search-tabs {
   background-color: #6a148e;
   border-color: #6a148e;
   cursor: pointer; }
+
+.search-filter {
+  margin: 10px -15px;
+  color: black; }

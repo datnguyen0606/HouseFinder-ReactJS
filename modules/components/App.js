@@ -1,13 +1,13 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
-import SearchTab from './SearchTab'
+import SearchSection from './SearchSection'
 import SearchPagination from './SearchPagination'
 
 class App extends Component {
   render() {
     return (
       <div className="col-sm-10 col-sm-offset-1">
-        <SearchTab
+        <SearchSection
           {...this.props.ui}
           {...this.props.data}
           dispatch={this.props.dispatch} />

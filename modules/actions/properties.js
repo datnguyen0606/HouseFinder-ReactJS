@@ -25,16 +25,31 @@ export function fetchProperties(page_number = 1) {
     dispatch(requestProperties());
 
     const {ui, data} = getState();
+    const criteria = ui.searchCriteria;
     const cfg = config.zoopla;
     let params = {
       api_key: cfg.api_key,
       radius: 0.25,
-      area: ui.searchCriteria.area,
+      area: criteria.area,
       listing_status: ui.listingFilter,
       ordering: "ascending",
       page_number: page_number,
       page_size: cfg.page_size
     };
+
+    if (criteria.min_price) {
+      params["minimum_price"] = criteria.min_price;
+    }
+    if (criteria.max_price) {
+      params["maximum_price"] = criteria.max_price;
+    }
+    if (criteria.property_type) {
+      params["property_type"] = criteria.property_type;
+    }
+    if (criteria.number_bedroom) {
+      params["minimum_beds"] = criteria.number_bedroom;
+    }
+
     params = $.param(params);
     const uri = `${cfg.endpoint}/property_listings.json?${params}`;
 

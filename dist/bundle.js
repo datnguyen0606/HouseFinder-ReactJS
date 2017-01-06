@@ -58,7 +58,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	__webpack_require__(355);
+	__webpack_require__(359);
 
 	(0, _reactDom.render)(_react2.default.createElement(_Root2.default, null), document.getElementById('app'));
 
@@ -24708,11 +24708,34 @@
 	        listingFilter: action.filter
 	      });
 	    case _search.SET_SEARCH_AREA:
-	      var searchCriteria = Object.assign({}, state.searchCriteria, {
-	        area: action.area
-	      });
 	      return Object.assign({}, state, {
-	        searchCriteria: searchCriteria
+	        searchCriteria: Object.assign({}, state.searchCriteria, {
+	          area: action.area
+	        })
+	      });
+	    case _search.SET_NUMBER_BEDROOM:
+	      return Object.assign({}, state, {
+	        searchCriteria: Object.assign({}, state.searchCriteria, {
+	          number_bedroom: action.number
+	        })
+	      });
+	    case _search.SET_MAX_PRICE:
+	      return Object.assign({}, state, {
+	        searchCriteria: Object.assign({}, state.searchCriteria, {
+	          max_price: action.price
+	        })
+	      });
+	    case _search.SET_MIN_PRICE:
+	      return Object.assign({}, state, {
+	        searchCriteria: Object.assign({}, state.searchCriteria, {
+	          min_price: action.price
+	        })
+	      });
+	    case _search.SET_HOUSE_TYPE:
+	      return Object.assign({}, state, {
+	        searchCriteria: Object.assign({}, state.searchCriteria, {
+	          property_type: action.property_type
+	        })
 	      });
 	    default:
 	      return state;
@@ -24801,16 +24824,31 @@
 	        ui = _getState.ui,
 	        data = _getState.data;
 
+	    var criteria = ui.searchCriteria;
 	    var cfg = _config2.default.zoopla;
 	    var params = {
 	      api_key: cfg.api_key,
 	      radius: 0.25,
-	      area: ui.searchCriteria.area,
+	      area: criteria.area,
 	      listing_status: ui.listingFilter,
 	      ordering: "ascending",
 	      page_number: page_number,
 	      page_size: cfg.page_size
 	    };
+
+	    if (criteria.min_price) {
+	      params["minimum_price"] = criteria.min_price;
+	    }
+	    if (criteria.max_price) {
+	      params["maximum_price"] = criteria.max_price;
+	    }
+	    if (criteria.property_type) {
+	      params["property_type"] = criteria.property_type;
+	    }
+	    if (criteria.number_bedroom) {
+	      params["minimum_beds"] = criteria.number_bedroom;
+	    }
+
 	    params = $.param(params);
 	    var uri = cfg.endpoint + '/property_listings.json?' + params;
 
@@ -25332,8 +25370,19 @@
 	});
 	exports.setListingFilter = setListingFilter;
 	exports.setSearchArea = setSearchArea;
+	exports.setNumberBedRoom = setNumberBedRoom;
+	exports.setLimitPrice = setLimitPrice;
+	exports.setHouseType = setHouseType;
 	var SET_LISTING_FILTER = exports.SET_LISTING_FILTER = 'SET_LISTING_FILTER';
 	var SET_SEARCH_AREA = exports.SET_SEARCH_AREA = 'SET_SEARCH_AREA';
+	var SET_NUMBER_BEDROOM = exports.SET_NUMBER_BEDROOM = 'SET_NUMBER_BEDROOM';
+	var SET_HOUSE_TYPE = exports.SET_HOUSE_TYPE = 'SET_HOUSE_TYPE';
+	var SET_MAX_PRICE = exports.SET_MAX_PRICE = 'SET_MAX_PRICE';
+	var SET_MIN_PRICE = exports.SET_MIN_PRICE = 'SET_MIN_PRICE';
+	var SET_LIMIT_PRICE = {
+	  'Max': SET_MAX_PRICE,
+	  'Min': SET_MIN_PRICE
+	};
 
 	function setListingFilter(filter) {
 	  return {
@@ -25346,6 +25395,27 @@
 	  return {
 	    type: SET_SEARCH_AREA,
 	    area: area
+	  };
+	}
+
+	function setNumberBedRoom(number) {
+	  return {
+	    type: SET_NUMBER_BEDROOM,
+	    number: number
+	  };
+	}
+
+	function setLimitPrice(label, price) {
+	  return {
+	    type: SET_LIMIT_PRICE[label],
+	    price: price
+	  };
+	}
+
+	function setHouseType(property_type) {
+	  return {
+	    type: SET_HOUSE_TYPE,
+	    property_type: property_type
 	  };
 	}
 
@@ -25369,9 +25439,9 @@
 
 	var _reactRedux = __webpack_require__(179);
 
-	var _SearchTab = __webpack_require__(232);
+	var _SearchSection = __webpack_require__(232);
 
-	var _SearchTab2 = _interopRequireDefault(_SearchTab);
+	var _SearchSection2 = _interopRequireDefault(_SearchSection);
 
 	var _SearchPagination = __webpack_require__(347);
 
@@ -25400,7 +25470,7 @@
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'col-sm-10 col-sm-offset-1' },
-	        _react2.default.createElement(_SearchTab2.default, _extends({}, this.props.ui, this.props.data, {
+	        _react2.default.createElement(_SearchSection2.default, _extends({}, this.props.ui, this.props.data, {
 	          dispatch: this.props.dispatch }))
 	      );
 	    }
@@ -25441,6 +25511,14 @@
 
 	var _SearchResult2 = _interopRequireDefault(_SearchResult);
 
+	var _SearchTab = __webpack_require__(355);
+
+	var _SearchTab2 = _interopRequireDefault(_SearchTab);
+
+	var _SearchFilter = __webpack_require__(356);
+
+	var _SearchFilter2 = _interopRequireDefault(_SearchFilter);
+
 	var _search = __webpack_require__(230);
 
 	var _properties = __webpack_require__(226);
@@ -25453,29 +25531,16 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var SearchTab = function (_Component) {
-	  _inherits(SearchTab, _Component);
+	var SearchSection = function (_Component) {
+	  _inherits(SearchSection, _Component);
 
-	  function SearchTab(props) {
-	    _classCallCheck(this, SearchTab);
+	  function SearchSection() {
+	    _classCallCheck(this, SearchSection);
 
-	    var _this = _possibleConstructorReturn(this, (SearchTab.__proto__ || Object.getPrototypeOf(SearchTab)).call(this, props));
-
-	    _this._fetchData = _this._fetchData.bind(_this);
-	    return _this;
+	    return _possibleConstructorReturn(this, (SearchSection.__proto__ || Object.getPrototypeOf(SearchSection)).apply(this, arguments));
 	  }
 
-	  _createClass(SearchTab, [{
-	    key: '_fetchData',
-	    value: function _fetchData() {
-	      this.props.dispatch((0, _properties.fetchProperties)());
-	    }
-	  }, {
-	    key: '_handleTabClick',
-	    value: function _handleTabClick(listingFilter) {
-	      this.props.dispatch((0, _search.setListingFilter)(listingFilter));
-	    }
-	  }, {
+	  _createClass(SearchSection, [{
 	    key: '_handleInputArea',
 	    value: function _handleInputArea(e) {
 	      if (e.keyCode == 13) {
@@ -25487,7 +25552,7 @@
 	  }, {
 	    key: '_handleSearch',
 	    value: function _handleSearch(e) {
-	      this._fetchData();
+	      this.props.dispatch((0, _properties.fetchProperties)());
 	    }
 	  }, {
 	    key: 'render',
@@ -25495,37 +25560,9 @@
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement(
-	          'ul',
-	          { className: 'search-tabs nav nav-tabs' },
-	          _react2.default.createElement(
-	            'li',
-	            { className: this.props.listingFilter == "rent" ? "active" : "" },
-	            _react2.default.createElement(
-	              'a',
-	              { onClick: this._handleTabClick.bind(this, "rent"), href: '#' },
-	              'For rent'
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'li',
-	            { className: this.props.listingFilter == "sale" ? "active" : "" },
-	            _react2.default.createElement(
-	              'a',
-	              { onClick: this._handleTabClick.bind(this, "sale"), href: '#' },
-	              'For sale'
-	            )
-	          ),
-	          _react2.default.createElement(
-	            'li',
-	            { className: this.props.listingFilter == "price" ? "active" : "" },
-	            _react2.default.createElement(
-	              'a',
-	              { onClick: this._handleTabClick.bind(this, "price"), href: '#' },
-	              'House prices'
-	            )
-	          )
-	        ),
+	        _react2.default.createElement(_SearchTab2.default, {
+	          listingFilter: this.props.listingFilter,
+	          dispatch: this.props.dispatch }),
 	        _react2.default.createElement(
 	          'div',
 	          { className: 'tabs-content' },
@@ -25535,10 +25572,11 @@
 	            _react2.default.createElement(
 	              'span',
 	              { className: 'input-group-addon' },
-	              'Search'
+	              _react2.default.createElement('i', { className: 'fa fa-search' })
 	            ),
 	            _react2.default.createElement('input', { onKeyUp: this._handleInputArea.bind(this), type: 'text', className: 'form-control', placeholder: 'e.g. Oxford, NW3 or Waterloo Station' })
 	          ),
+	          _react2.default.createElement(_SearchFilter2.default, { dispatch: this.props.dispatch }),
 	          _react2.default.createElement(
 	            'div',
 	            { className: 'row' },
@@ -25558,10 +25596,10 @@
 	    }
 	  }]);
 
-	  return SearchTab;
+	  return SearchSection;
 	}(_react.Component);
 
-	exports.default = SearchTab;
+	exports.default = SearchSection;
 
 /***/ },
 /* 233 */
@@ -25731,10 +25769,10 @@
 	              _react2.default.createElement(
 	                'span',
 	                null,
-	                _react2.default.createElement('i', { className: 'fa fa-bed', 'aria-hidden': 'true' }),
+	                _react2.default.createElement('i', { className: 'fa fa-bed' }),
 	                ' 1'
 	              ),
-	              _react2.default.createElement('i', { className: 'fa fa-bath', 'aria-hidden': 'true' }),
+	              _react2.default.createElement('i', { className: 'fa fa-bath' }),
 	              ' 1'
 	            ),
 	            _react2.default.createElement(
@@ -41754,7 +41792,6 @@
 	    key: '_handlePageClick',
 	    value: function _handlePageClick(data) {
 	      var selected = data.selected + 1;
-	      console.log(selected);
 	      this.props.dispatch((0, _properties.fetchProperties)(selected));
 	    }
 	  }, {
@@ -42310,6 +42347,988 @@
 
 /***/ },
 /* 355 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _search = __webpack_require__(230);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var SearchSection = function (_Component) {
+	  _inherits(SearchSection, _Component);
+
+	  function SearchSection() {
+	    _classCallCheck(this, SearchSection);
+
+	    return _possibleConstructorReturn(this, (SearchSection.__proto__ || Object.getPrototypeOf(SearchSection)).apply(this, arguments));
+	  }
+
+	  _createClass(SearchSection, [{
+	    key: '_handleTabClick',
+	    value: function _handleTabClick(listingFilter) {
+	      this.props.dispatch((0, _search.setListingFilter)(listingFilter));
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'ul',
+	        { className: 'search-tabs nav nav-tabs' },
+	        _react2.default.createElement(
+	          'li',
+	          { className: this.props.listingFilter == "rent" ? "active" : "" },
+	          _react2.default.createElement(
+	            'a',
+	            { onClick: this._handleTabClick.bind(this, "rent"), href: '#' },
+	            'For rent'
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'li',
+	          { className: this.props.listingFilter == "sale" ? "active" : "" },
+	          _react2.default.createElement(
+	            'a',
+	            { onClick: this._handleTabClick.bind(this, "sale"), href: '#' },
+	            'For sale'
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'li',
+	          { className: this.props.listingFilter == "price" ? "active" : "" },
+	          _react2.default.createElement(
+	            'a',
+	            { onClick: this._handleTabClick.bind(this, "price"), href: '#' },
+	            'House prices'
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return SearchSection;
+	}(_react.Component);
+
+	exports.default = SearchSection;
+
+/***/ },
+/* 356 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _PriceList = __webpack_require__(357);
+
+	var _PriceList2 = _interopRequireDefault(_PriceList);
+
+	var _Bedroom = __webpack_require__(358);
+
+	var _Bedroom2 = _interopRequireDefault(_Bedroom);
+
+	var _search = __webpack_require__(230);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var SearchFilter = function (_Component) {
+	  _inherits(SearchFilter, _Component);
+
+	  function SearchFilter() {
+	    _classCallCheck(this, SearchFilter);
+
+	    return _possibleConstructorReturn(this, (SearchFilter.__proto__ || Object.getPrototypeOf(SearchFilter)).apply(this, arguments));
+	  }
+
+	  _createClass(SearchFilter, [{
+	    key: '_onTypeChange',
+	    value: function _onTypeChange(e) {
+	      var value = e.target.value == "" ? null : e.target.value;
+	      this.props.dispatch((0, _search.setHouseType)(value));
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'search-filter row' },
+	        _react2.default.createElement(_PriceList2.default, { dispatch: this.props.dispatch, label: "Min" }),
+	        _react2.default.createElement(_PriceList2.default, { dispatch: this.props.dispatch, label: "Max" }),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'col-sm-3' },
+	          'Property type',
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'input-group' },
+	            _react2.default.createElement(
+	              'span',
+	              { className: 'input-group-addon' },
+	              _react2.default.createElement('i', { className: 'fa fa-home' })
+	            ),
+	            _react2.default.createElement(
+	              'select',
+	              { onChange: this._onTypeChange.bind(this), className: 'selectpicker form-control' },
+	              _react2.default.createElement(
+	                'option',
+	                { value: '' },
+	                'Show all'
+	              ),
+	              _react2.default.createElement(
+	                'option',
+	                { value: 'houses' },
+	                'Houses'
+	              ),
+	              _react2.default.createElement(
+	                'option',
+	                { value: 'flats' },
+	                'Flats'
+	              ),
+	              _react2.default.createElement(
+	                'option',
+	                { value: 'farms_land' },
+	                'Farms/land'
+	              )
+	            )
+	          )
+	        ),
+	        _react2.default.createElement(_Bedroom2.default, { dispatch: this.props.dispatch })
+	      );
+	    }
+	  }]);
+
+	  return SearchFilter;
+	}(_react.Component);
+
+	exports.default = SearchFilter;
+
+/***/ },
+/* 357 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _search = __webpack_require__(230);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var PriceList = function (_Component) {
+	  _inherits(PriceList, _Component);
+
+	  function PriceList() {
+	    _classCallCheck(this, PriceList);
+
+	    return _possibleConstructorReturn(this, (PriceList.__proto__ || Object.getPrototypeOf(PriceList)).apply(this, arguments));
+	  }
+
+	  _createClass(PriceList, [{
+	    key: '_onChange',
+	    value: function _onChange(e) {
+	      this.props.dispatch((0, _search.setLimitPrice)(this.props.label, parseInt(e.target.value)));
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'col-sm-3' },
+	        this.props.label,
+	        ' Price',
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'input-group' },
+	          _react2.default.createElement(
+	            'span',
+	            { className: 'input-group-addon' },
+	            _react2.default.createElement('i', { className: 'fa fa-gbp' })
+	          ),
+	          _react2.default.createElement(
+	            'select',
+	            { onChange: this._onChange.bind(this), className: 'selectpicker form-control' },
+	            _react2.default.createElement(
+	              'option',
+	              { value: '' },
+	              'No ',
+	              this.props.label
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '100', 'data-condensed': '100' },
+	              '\xA3100'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '200', 'data-condensed': '200' },
+	              '\xA3200'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '300', 'data-condensed': '300' },
+	              '\xA3300'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '400', 'data-condensed': '400' },
+	              '\xA3400'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '500', 'data-condensed': '500' },
+	              '\xA3500'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '600', 'data-condensed': '600' },
+	              '\xA3600'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '700', 'data-condensed': '700' },
+	              '\xA3700'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '800', 'data-condensed': '800' },
+	              '\xA3800'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '900', 'data-condensed': '900' },
+	              '\xA3900'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1000', 'data-condensed': '1k' },
+	              '\xA31,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1250', 'data-condensed': '1.25k' },
+	              '\xA31,250'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1500', 'data-condensed': '1.5k' },
+	              '\xA31,500'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1750', 'data-condensed': '1.75k' },
+	              '\xA31,750'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '2000', 'data-condensed': '2k' },
+	              '\xA32,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '2250', 'data-condensed': '2.25k' },
+	              '\xA32,250'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '2500', 'data-condensed': '2.5k' },
+	              '\xA32,500'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '2750', 'data-condensed': '2.75k' },
+	              '\xA32,750'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '3000', 'data-condensed': '3k' },
+	              '\xA33,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '3250', 'data-condensed': '3.25k' },
+	              '\xA33,250'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '3500', 'data-condensed': '3.5k' },
+	              '\xA33,500'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '3750', 'data-condensed': '3.75k' },
+	              '\xA33,750'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '4000', 'data-condensed': '4k' },
+	              '\xA34,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '4250', 'data-condensed': '4.25k' },
+	              '\xA34,250'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '4500', 'data-condensed': '4.5k' },
+	              '\xA34,500'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '4750', 'data-condensed': '4.75k' },
+	              '\xA34,750'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '5000', 'data-condensed': '5k' },
+	              '\xA35,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '5500', 'data-condensed': '5.5k' },
+	              '\xA35,500'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '6000', 'data-condensed': '6k' },
+	              '\xA36,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '6500', 'data-condensed': '6.5k' },
+	              '\xA36,500'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '7000', 'data-condensed': '7k' },
+	              '\xA37,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '7500', 'data-condensed': '7.5k' },
+	              '\xA37,500'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '8000', 'data-condensed': '8k' },
+	              '\xA38,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '8500', 'data-condensed': '8.5k' },
+	              '\xA38,500'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '9000', 'data-condensed': '9k' },
+	              '\xA39,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '9500', 'data-condensed': '9.5k' },
+	              '\xA39,500'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '10000', 'data-condensed': '10k' },
+	              '\xA310,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '20000', 'data-condensed': '20k' },
+	              '\xA320,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '30000', 'data-condensed': '30k' },
+	              '\xA330,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '40000', 'data-condensed': '40k' },
+	              '\xA340,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '50000', 'data-condensed': '50k' },
+	              '\xA350,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '60000', 'data-condensed': '60k' },
+	              '\xA360,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '70000', 'data-condensed': '70k' },
+	              '\xA370,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '80000', 'data-condensed': '80k' },
+	              '\xA380,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '90000', 'data-condensed': '90k' },
+	              '\xA390,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '100000', 'data-condensed': '100k' },
+	              '\xA3100,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '110000', 'data-condensed': '110k' },
+	              '\xA3110,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '120000', 'data-condensed': '120k' },
+	              '\xA3120,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '125000', 'data-condensed': '125k' },
+	              '\xA3125,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '130000', 'data-condensed': '130k' },
+	              '\xA3130,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '140000', 'data-condensed': '140k' },
+	              '\xA3140,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '150000', 'data-condensed': '150k' },
+	              '\xA3150,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '160000', 'data-condensed': '160k' },
+	              '\xA3160,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '170000', 'data-condensed': '170k' },
+	              '\xA3170,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '180000', 'data-condensed': '180k' },
+	              '\xA3180,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '190000', 'data-condensed': '190k' },
+	              '\xA3190,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '200000', 'data-condensed': '200k' },
+	              '\xA3200,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '210000', 'data-condensed': '210k' },
+	              '\xA3210,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '220000', 'data-condensed': '220k' },
+	              '\xA3220,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '230000', 'data-condensed': '230k' },
+	              '\xA3230,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '240000', 'data-condensed': '240k' },
+	              '\xA3240,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '250000', 'data-condensed': '250k' },
+	              '\xA3250,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '275000', 'data-condensed': '275k' },
+	              '\xA3275,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '300000', 'data-condensed': '300k' },
+	              '\xA3300,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '325000', 'data-condensed': '325k' },
+	              '\xA3325,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '350000', 'data-condensed': '350k' },
+	              '\xA3350,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '375000', 'data-condensed': '375k' },
+	              '\xA3375,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '400000', 'data-condensed': '400k' },
+	              '\xA3400,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '425000', 'data-condensed': '425k' },
+	              '\xA3425,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '450000', 'data-condensed': '450k' },
+	              '\xA3450,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '475000', 'data-condensed': '475k' },
+	              '\xA3475,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '500000', 'data-condensed': '500k' },
+	              '\xA3500,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '550000', 'data-condensed': '550k' },
+	              '\xA3550,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '600000', 'data-condensed': '600k' },
+	              '\xA3600,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '650000', 'data-condensed': '650k' },
+	              '\xA3650,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '700000', 'data-condensed': '700k' },
+	              '\xA3700,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '750000', 'data-condensed': '750k' },
+	              '\xA3750,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '800000', 'data-condensed': '800k' },
+	              '\xA3800,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '850000', 'data-condensed': '850k' },
+	              '\xA3850,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '900000', 'data-condensed': '900k' },
+	              '\xA3900,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '950000', 'data-condensed': '950k' },
+	              '\xA3950,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1000000', 'data-condensed': '1m' },
+	              '\xA31,000,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1100000', 'data-condensed': '1.1m' },
+	              '\xA31,100,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1200000', 'data-condensed': '1.2m' },
+	              '\xA31,200,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1300000', 'data-condensed': '1.3m' },
+	              '\xA31,300,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1400000', 'data-condensed': '1.4m' },
+	              '\xA31,400,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1500000', 'data-condensed': '1.5m' },
+	              '\xA31,500,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1600000', 'data-condensed': '1.6m' },
+	              '\xA31,600,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1700000', 'data-condensed': '1.7m' },
+	              '\xA31,700,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1800000', 'data-condensed': '1.8m' },
+	              '\xA31,800,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1900000', 'data-condensed': '1.9m' },
+	              '\xA31,900,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '2000000', 'data-condensed': '2m' },
+	              '\xA32,000,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '2100000', 'data-condensed': '2.1m' },
+	              '\xA32,100,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '2200000', 'data-condensed': '2.2m' },
+	              '\xA32,200,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '2300000', 'data-condensed': '2.3m' },
+	              '\xA32,300,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '2400000', 'data-condensed': '2.4m' },
+	              '\xA32,400,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '2500000', 'data-condensed': '2.5m' },
+	              '\xA32,500,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '2750000', 'data-condensed': '2.75m' },
+	              '\xA32,750,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '3000000', 'data-condensed': '3m' },
+	              '\xA33,000,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '3250000', 'data-condensed': '3.25m' },
+	              '\xA33,250,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '3500000', 'data-condensed': '3.5m' },
+	              '\xA33,500,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '3750000', 'data-condensed': '3.75m' },
+	              '\xA33,750,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '4000000', 'data-condensed': '4m' },
+	              '\xA34,000,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '4250000', 'data-condensed': '4.25m' },
+	              '\xA34,250,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '4500000', 'data-condensed': '4.5m' },
+	              '\xA34,500,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '4750000', 'data-condensed': '4.75m' },
+	              '\xA34,750,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '5000000', 'data-condensed': '5m' },
+	              '\xA35,000,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '5500000', 'data-condensed': '5.5m' },
+	              '\xA35,500,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '6000000', 'data-condensed': '6m' },
+	              '\xA36,000,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '6500000', 'data-condensed': '6.5m' },
+	              '\xA36,500,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '7000000', 'data-condensed': '7m' },
+	              '\xA37,000,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '7500000', 'data-condensed': '7.5m' },
+	              '\xA37,500,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '8000000', 'data-condensed': '8m' },
+	              '\xA38,000,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '8500000', 'data-condensed': '8.5m' },
+	              '\xA38,500,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '9000000', 'data-condensed': '9m' },
+	              '\xA39,000,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '9500000', 'data-condensed': '9.5m' },
+	              '\xA39,500,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '10000000', 'data-condensed': '10m' },
+	              '\xA310,000,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '12500000', 'data-condensed': '12.5m' },
+	              '\xA312,500,000'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '15000000', 'data-condensed': '15m' },
+	              '\xA315,000,000'
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return PriceList;
+	}(_react.Component);
+
+	exports.default = PriceList;
+
+/***/ },
+/* 358 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _search = __webpack_require__(230);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Bedroom = function (_Component) {
+	  _inherits(Bedroom, _Component);
+
+	  function Bedroom() {
+	    _classCallCheck(this, Bedroom);
+
+	    return _possibleConstructorReturn(this, (Bedroom.__proto__ || Object.getPrototypeOf(Bedroom)).apply(this, arguments));
+	  }
+
+	  _createClass(Bedroom, [{
+	    key: '_onChange',
+	    value: function _onChange(e) {
+	      this.props.dispatch((0, _search.setNumberBedRoom)(parseInt(e.target.value)));
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'col-sm-3' },
+	        'Bedrooms',
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'input-group' },
+	          _react2.default.createElement(
+	            'span',
+	            { className: 'input-group-addon' },
+	            _react2.default.createElement('i', { className: 'fa fa-bed' })
+	          ),
+	          _react2.default.createElement(
+	            'select',
+	            { onChange: this._onChange.bind(this), className: 'selectpicker form-control' },
+	            _react2.default.createElement(
+	              'option',
+	              { value: '' },
+	              'No Min'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '0' },
+	              'Studio+'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '1' },
+	              '1+'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '2' },
+	              '2+'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '3' },
+	              '3+'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '4' },
+	              '4+'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '5' },
+	              '5+'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '6' },
+	              '6+'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '7' },
+	              '7+'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '8' },
+	              '8+'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '9' },
+	              '9+'
+	            ),
+	            _react2.default.createElement(
+	              'option',
+	              { value: '10' },
+	              '10+'
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Bedroom;
+	}(_react.Component);
+
+	exports.default = Bedroom;
+
+/***/ },
+/* 359 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
