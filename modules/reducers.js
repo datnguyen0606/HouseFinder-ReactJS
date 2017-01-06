@@ -31,7 +31,7 @@ function ui(state = {
 }
 
 function data(state = {
-  next_page_number: 1, result_count: 0,
+  result_count: 0,
   isFetching: false, properties: []
 }, action) {
   switch (action.type) {
@@ -43,8 +43,7 @@ function data(state = {
       return Object.assign({}, state, {
         isFetching: false,
         properties: action.properties,
-        result_count: action.result_count,
-        next_page_number: action.next_page_number
+        result_count: action.result_count
       });
     default:
       return state;

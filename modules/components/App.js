@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import SearchTab from './SearchTab'
+import SearchPagination from './SearchPagination'
 
 class App extends Component {
   render() {
@@ -10,6 +11,7 @@ class App extends Component {
           {...this.props.ui}
           {...this.props.data}
           dispatch={this.props.dispatch} />
+
       </div>
     );
   }

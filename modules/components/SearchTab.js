@@ -1,6 +1,5 @@
 import React, {Component} from 'react'
 import SearchResult from './SearchResult'
-import config from '../config'
 
 import {
   setListingFilter,
@@ -12,6 +11,15 @@ import {
 } from '../actions/properties'
 
 export default class SearchTab extends Component {
+  constructor(props) {
+    super(props);
+    this._fetchData = this._fetchData.bind(this);
+  }
+
+  _fetchData() {
+    this.props.dispatch(fetchProperties());
+  }
+
   _handleTabClick(listingFilter) {
     this.props.dispatch(setListingFilter(listingFilter));
   }
@@ -25,20 +33,7 @@ export default class SearchTab extends Component {
   }
 
   _handleSearch(e) {
-    const cfg = config.zoopla;
-    const page_number = this.props.next_page_number;
-    let params = {
-      api_key: cfg.api_key,
-      radius: 0.25,
-      area: this.props.searchCriteria.area,
-      listing_status: this.props.listingFilter,
-      ordering: "ascending",
-      page_number: page_number,
-      page_size: cfg.page_size
-    };
-    params = $.param(params);
-    const url = `${cfg.endpoint}/property_listings.json?${params}`;
-    this.props.dispatch(fetchProperties(url, page_number));
+    this._fetchData();
   }
 
   render() {
@@ -69,8 +64,7 @@ export default class SearchTab extends Component {
           </div>
 
           <SearchResult
-            next_page_number={this.props.next_page_number}
-            result_count={this.props.result_count}
+            resultCount={this.props.result_count}
             properties={this.props.properties}
             isFetching={this.props.isFetching}
             dispatch={this.props.dispatch} />
